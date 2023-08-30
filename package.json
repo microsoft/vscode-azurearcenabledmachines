@@ -76,5 +76,11 @@
   },
   "extensionDependencies": [
     "ms-azuretools.vscode-azureresourcegroups"
-  ]
+  ],
+  "dependencies": {
+    "@azure/arm-hybridcompute": "^3.0.0",
+    "@microsoft/vscode-azext-azureutils": "^2.0.2",
+    "@microsoft/vscode-azext-utils": "^2.1.0",
+    "@microsoft/vscode-azureresources-api": "^2.1.0"
+  }
 }

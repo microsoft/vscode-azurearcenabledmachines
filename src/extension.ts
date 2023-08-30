@@ -2,27 +2,32 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
+import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
+import { IActionContext, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
+import { AzExtResourceType, getAzureResourcesExtensionApi } from "@microsoft/vscode-azureresources-api";
+import { ext } from "./extensionVariables";
+import { ArcEnabledServersBranchDataProvider } from "./ArcEnabledServersBranchDataProvider";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
 
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log("Congratulations, your extension \"vscode-azurearcenabledservers\" is now active!");
+    ext.context = context;
+    ext.outputChannel = createAzExtOutputChannel(ext.name, ext.prefix);
+    context.subscriptions.push(ext.outputChannel);
 
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
-    const disposable = vscode.commands.registerCommand("vscode-azurearcenabledservers.helloWorld", () => {
-        // The code you place here will be executed every time your command is executed
-        // Display a message box to the user
-        void vscode.window.showInformationMessage("Hello World from Azure Arc-enabled Servers for Visual Studio Code!");
-    });
+    registerUIExtensionVariables(ext);
+    registerAzureUtilsExtensionVariables(ext);
 
-    context.subscriptions.push(disposable);
+    await callWithTelemetryAndErrorHandling(`${ext.prefix}.activate`,
+        async (activateContext: IActionContext) => {
+            activateContext.telemetry.properties.isActivationEvent = "true";
+
+            ext.rgApiV2 = await getAzureResourcesExtensionApi(context, "2.0.0");
+            ext.branchDataProvider = new ArcEnabledServersBranchDataProvider();
+            ext.rgApiV2.resources.registerAzureResourceBranchDataProvider(
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+                AzExtResourceType.ArcEnabledServers,
+                ext.branchDataProvider);
+        });
 }
 
-// This method is called when your extension is deactivated
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-export function deactivate(): void { }
+export function deactivate(): void { return; }
