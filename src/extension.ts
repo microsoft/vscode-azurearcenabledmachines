@@ -7,6 +7,7 @@ import { IActionContext, callWithTelemetryAndErrorHandling, createAzExtOutputCha
 import { AzExtResourceType, getAzureResourcesExtensionApi } from "@microsoft/vscode-azureresources-api";
 import { ext } from "./extensionVariables";
 import { ArcEnabledServersBranchDataProvider } from "./ArcEnabledServersBranchDataProvider";
+import { registerCommands } from "./commands/registerCommands";
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
 
@@ -20,6 +21,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     await callWithTelemetryAndErrorHandling(`${ext.prefix}.activate`,
         async (activateContext: IActionContext) => {
             activateContext.telemetry.properties.isActivationEvent = "true";
+
+            registerCommands();
 
             ext.rgApiV2 = await getAzureResourcesExtensionApi(context, "2.0.0");
             ext.branchDataProvider = new ArcEnabledServersBranchDataProvider();
