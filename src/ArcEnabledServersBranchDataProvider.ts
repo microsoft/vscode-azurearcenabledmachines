@@ -9,14 +9,17 @@ import { ArcEnabledServerItem, ArcEnabledServerModel } from "./ArcEnabledServerI
 export interface ArcEnabledServersResourceModel extends AzureResourceModel {
     subscription: AzureSubscription;
     arcEnabledServer: ArcEnabledServerModel;
+    getTreeItem(): vscode.TreeItem;
 }
 
 export class ArcEnabledServersBranchDataProvider implements AzureResourceBranchDataProvider<ArcEnabledServersResourceModel> {
-    getChildren(_element: ArcEnabledServersResourceModel): vscode.ProviderResult<ArcEnabledServersResourceModel[]> {
-        throw new Error("Method not implemented.");
+    getChildren(_element: ArcEnabledServersResourceModel): ArcEnabledServersResourceModel[] {
+        // Arc-enabled servers have no children.
+        return [];
     }
 
     async getResourceItem(element: AzureResource): Promise<ArcEnabledServersResourceModel> {
+        // This returns the "starting branch item" for each resource (in our case, just Arc-enabled servers as leaves).
         const resourceItem = await callWithTelemetryAndErrorHandling(
             "getResourceItem",
             async (context: IActionContext) => {
@@ -33,17 +36,7 @@ export class ArcEnabledServersBranchDataProvider implements AzureResourceBranchD
         return resourceItem!;
     }
 
-    onDidChangeTreeData?: vscode.Event<ArcEnabledServersResourceModel | ArcEnabledServersResourceModel[] | null | undefined> | undefined;
-
-    getTreeItem(_element: ArcEnabledServersResourceModel): vscode.TreeItem | Thenable<vscode.TreeItem> {
-        throw new Error("Method not implemented.");
-    }
-
-    getParent?(_element: ArcEnabledServersResourceModel): vscode.ProviderResult<ArcEnabledServersResourceModel> {
-        throw new Error("Method not implemented.");
-    }
-
-    resolveTreeItem?(_item: vscode.TreeItem, _element: ArcEnabledServersResourceModel, _token: vscode.CancellationToken): vscode.ProviderResult<vscode.TreeItem> {
-        throw new Error("Method not implemented.");
+    getTreeItem(element: ArcEnabledServersResourceModel): vscode.TreeItem {
+        return element.getTreeItem();
     }
 }
