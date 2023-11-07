@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as vscode from "vscode";
+import { ExtensionContext } from "vscode";
 import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
 import { IActionContext, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
 import { AzExtResourceType, getAzureResourcesExtensionApi } from "@microsoft/vscode-azureresources-api";
@@ -9,7 +9,7 @@ import { ext } from "./extensionVariables";
 import { ArcEnabledServersBranchDataProvider } from "./ArcEnabledServersBranchDataProvider";
 import { registerCommands } from "./commands/registerCommands";
 
-export async function activate(context: vscode.ExtensionContext): Promise<void> {
+export async function activate(context: ExtensionContext): Promise<void> {
 
     ext.context = context;
     ext.outputChannel = createAzExtOutputChannel(ext.name, ext.prefix);

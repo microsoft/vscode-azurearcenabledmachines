@@ -2,14 +2,14 @@
 // Licensed under the MIT License.
 
 import { AzureResource, AzureResourceBranchDataProvider, AzureResourceModel, AzureSubscription } from "@microsoft/vscode-azureresources-api";
-import * as vscode from "vscode";
+import { TreeItem } from "vscode";
 import { IActionContext, callWithTelemetryAndErrorHandling, nonNullProp } from "@microsoft/vscode-azext-utils";
 import { ArcEnabledServerItem, ArcEnabledServerModel } from "./ArcEnabledServerItem";
 
 export interface ArcEnabledServersResourceModel extends AzureResourceModel {
     subscription: AzureSubscription;
     arcEnabledServer: ArcEnabledServerModel;
-    getTreeItem(): vscode.TreeItem;
+    getTreeItem(): TreeItem;
 }
 
 export class ArcEnabledServersBranchDataProvider implements AzureResourceBranchDataProvider<ArcEnabledServersResourceModel> {
@@ -36,7 +36,7 @@ export class ArcEnabledServersBranchDataProvider implements AzureResourceBranchD
         return resourceItem!;
     }
 
-    getTreeItem(element: ArcEnabledServersResourceModel): vscode.TreeItem {
+    getTreeItem(element: ArcEnabledServersResourceModel): TreeItem {
         return element.getTreeItem();
     }
 }
