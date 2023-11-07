@@ -43,6 +43,11 @@
         "command": "azureArcEnabledServers.reportIssue",
         "title": "Report Issue...",
         "category": "Azure Arc-enabled Servers"
+      },
+      {
+        "command": "azureArcEnabledServers.openInRemoteSsh",
+        "title": "Connect to Host via Remote SSH",
+        "category": "Azure Arc-enabled Servers"
       }
     ]
   },
