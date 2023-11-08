@@ -46,12 +46,12 @@ export class ArcEnabledServerItem implements ArcEnabledServersResourceModel {
     }
 
     getTreeItem(): TreeItem {
-        // TODO: Fill this out more.
         return {
             label: this.arcEnabledServer.name,
             id: this.id,
             iconPath: getIconPath("ArcEnabledServer"),
             collapsibleState: TreeItemCollapsibleState.None,
+            contextValue: "arcEnabledServerItem",
         };
     }
 
