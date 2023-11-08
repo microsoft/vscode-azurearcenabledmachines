@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 
+import { join } from "path";
+import { tmpdir } from "os";
 import { Machine } from "@azure/arm-hybridcompute";
 import { AzureResource, AzureSubscription, ViewPropertiesModel } from "@microsoft/vscode-azureresources-api";
 import { TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
@@ -10,6 +12,7 @@ import { IActionContext, createSubscriptionContext, nonNullProp } from "@microso
 import { getIconPath } from "./utils/treeUtils";
 import { createHybridComputeClient } from "./utils/azureClients";
 import { ArcEnabledServersResourceModel } from "./ArcEnabledServersBranchDataProvider";
+import { ext } from "./extensionVariables";
 
 export interface ArcEnabledServerModel extends Machine {
     id: string;
@@ -23,6 +26,11 @@ export class ArcEnabledServerItem implements ArcEnabledServersResourceModel {
     viewProperties?: ViewPropertiesModel | undefined;
     id?: string | undefined;
 
+    // Used to manage the SSH connection with the Az CLI.
+    sshHostName: string;
+    sshConfigFile: string;
+    sshConfigFolder: string;
+
     constructor(
         public readonly subscription: AzureSubscription,
         public readonly resource: AzureResource,
@@ -30,6 +38,11 @@ export class ArcEnabledServerItem implements ArcEnabledServersResourceModel {
 
         this.id = this.resource.id;
         this.portalUrl = createPortalUri(subscription, this.id);
+
+        // While it's possible this is not unique...it is what the Az CLI SSH extension uses.
+        this.sshHostName = `${arcEnabledServer.resourceGroup}-${arcEnabledServer.name}`;
+        this.sshConfigFile = join(tmpdir(), `vscode-${ext.prefix}-${this.sshHostName}.config`);
+        this.sshConfigFolder = join(tmpdir(), "az_ssh_config", this.sshHostName);
     }
 
     getTreeItem(): TreeItem {

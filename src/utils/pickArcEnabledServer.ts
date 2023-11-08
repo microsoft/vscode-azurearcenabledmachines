@@ -3,8 +3,8 @@
 
 import { AzureResourceQuickPickWizardContext, AzureWizardPromptStep, IActionContext, QuickPickAzureResourceStep, QuickPickAzureSubscriptionStep, QuickPickGroupStep, QuickPickWizardContext, runQuickPickWizard } from "@microsoft/vscode-azext-utils";
 import { AzExtResourceType } from "@microsoft/vscode-azureresources-api";
-import { ArcEnabledServersResourceModel } from "../ArcEnabledServersBranchDataProvider";
 import { ext } from "../extensionVariables";
+import { ArcEnabledServerItem } from "../ArcEnabledServerItem";
 
 function getPickArcEnabledServerPromptSteps(): AzureWizardPromptStep<AzureResourceQuickPickWizardContext>[] {
     const treeDataProvider = ext.rgApiV2.resources.azureResourceTreeDataProvider;
@@ -23,7 +23,7 @@ function getPickArcEnabledServerPromptSteps(): AzureWizardPromptStep<AzureResour
     ];
 }
 
-export async function pickArcEnabledServer(context: IActionContext): Promise<ArcEnabledServersResourceModel> {
+export async function pickArcEnabledServer(context: IActionContext): Promise<ArcEnabledServerItem> {
     const promptSteps: AzureWizardPromptStep<QuickPickWizardContext>[] = [
         ...getPickArcEnabledServerPromptSteps()
     ];
