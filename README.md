@@ -1,4 +1,4 @@
-# Azure Arc-enabled Servers for Visual Studio Code (Preview)
+# Azure Arc-enabled machines for Visual Studio Code (Preview)
 
 Work-in-progress!
 

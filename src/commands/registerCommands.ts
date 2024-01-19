@@ -17,6 +17,6 @@ export function registerCommands(): void {
         `${ext.prefix}.showRemoteSshExtension`,
         () => void commands.executeCommand("extension.open", remoteSshExtensionId));
 
-    // The whole point of this: open the selected Arc-enabled Server in a remote SSH window
+    // The whole point of this: open the selected Arc-enabled machine in a remote SSH window
     registerCommandWithTreeNodeUnwrapping(`${ext.prefix}.openInRemoteSsh`, openInRemoteSsh);
 }

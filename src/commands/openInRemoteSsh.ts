@@ -5,18 +5,18 @@ import { readFile, writeFile } from "fs/promises";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { parse } from "ssh-config";
 import { commands } from "vscode";
-import { pickArcEnabledServer } from "../utils/pickArcEnabledServer";
+import { pickArcEnabledMachine } from "../utils/pickArcEnabledMachine";
 import { verifyRemoteSshExtension } from "../utils/verifyRemoteSshExtension";
 import { runAzSshConfigCommand } from "../utils/runAzSshConfigCommand";
 import { sshConfigPath } from "../constants";
-import { ArcEnabledServerItem } from "../ArcEnabledServerItem";
+import { ArcEnabledMachineItem } from "../ArcEnabledMachineItem";
 
 export async function openInRemoteSsh(
     context: IActionContext & { canPickMany?: false },
-    node?: ArcEnabledServerItem): Promise<void> {
+    node?: ArcEnabledMachineItem): Promise<void> {
     // This was either called on a resource or from the command palette, in
     // which case we need to pick one.
-    node ??= await pickArcEnabledServer(context);
+    node ??= await pickArcEnabledMachine(context);
 
     // Verify that the Remote - SSH extension is installed and activated.
     await verifyRemoteSshExtension(context);
