@@ -4,7 +4,7 @@
 import { readFile, writeFile } from "fs/promises";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { parse } from "ssh-config";
-import { commands } from "vscode";
+import { ProgressLocation, commands, window } from "vscode";
 import { pickArcEnabledMachine } from "../utils/pickArcEnabledMachine";
 import { verifyRemoteSshExtension } from "../utils/verifyRemoteSshExtension";
 import { runAzSshConfigCommand } from "../utils/runAzSshConfigCommand";
@@ -21,6 +21,21 @@ export async function openInRemoteSsh(
     // Verify that the Remote - SSH extension is installed and activated.
     await verifyRemoteSshExtension(context);
 
+    await window.withProgress(
+        {
+            location: ProgressLocation.Notification,
+            title: `Setting up SSH for Azure Arc-enabled machine ${node.arcEnabledMachine.name}...`,
+            cancellable: false,
+        },
+        async (_progress, _token) => {
+            // NOTE: It is definitely defined by the ??= operation above.
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            await openInRemoteSshInternal(node!);
+        });
+}
+
+async function openInRemoteSshInternal(
+    node: ArcEnabledMachineItem): Promise<void> {
     // Get the generated SSH config from the `az ssh config` command for an Arc resource.
     const sshArcConfig = await runAzSshConfigCommand(node);
 

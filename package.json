@@ -61,7 +61,6 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
     "compile": "esbuild ./src/extension.ts --outdir=dist --sourcemap --bundle --external:vscode --platform=node",
     "watch": "npm run compile -- --watch",
     "package": "vsce package",
