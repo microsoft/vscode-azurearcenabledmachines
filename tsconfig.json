@@ -7,7 +7,7 @@
       "es6"
     ],
     "sourceMap": true,
-    "rootDir": ".",
+    "rootDir": "src",
     "strict": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
@@ -17,9 +17,5 @@
     "noUnusedParameters": true,
     "strictNullChecks": true,
     "esModuleInterop": true
-  },
-  "include": [
-    "src",
-    "test"
-  ]
+  }
 }

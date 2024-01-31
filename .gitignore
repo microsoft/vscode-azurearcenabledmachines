@@ -4,4 +4,4 @@
 dist/
 node_modules/
 out/
-test-results.xml
+tsconfig.tsbuildinfo
