@@ -1,0 +1,101 @@
+trigger:
+  branches:
+    include:
+      - release
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    pool:
+      name: 1ES
+      demands: ImageOverride -equals PSMMSUbuntu20.04-Secure
+    steps:
+    - checkout: self
+    - script: echo "##vso[task.setvariable variable=Version;isOutput=true]$(jq -r '.version' package.json)"
+      name: Package
+    - task: UseNode@1
+      inputs:
+        version: 18.x
+    - task: npmAuthenticate@0
+      inputs:
+        workingFile: .npmrc
+    - script: npm ci
+    - script: npm run package
+    - task: ManifestGeneratorTask@0
+      inputs:
+        BuildComponentPath: $(Build.SourcesDirectory)
+        BuildDropPath: $(Build.ArtifactStagingDirectory)
+        PackageName: vscode-azurearcenabledmachines
+        PackageVersion: $(Package.Version)
+    - publish: $(Build.ArtifactStagingDirectory)/_manifest
+      artifact: _manifest
+    - publish: vscode-azurearcenabledmachines-$(Package.Version).vsix
+      artifact: vsix
+
+- stage: Compliance
+  jobs:
+  - job: Compliance
+    pool:
+      name: 1ES
+      demands: ImageOverride -equals PSMMS2019-Secure
+    steps:
+    - download: current
+    - checkout: self
+    - task: AntiMalware@4
+      inputs:
+        FileDirPath: $(Pipeline.Workspace)/vsix/
+    - task: CredScan@3
+    - task: PoliCheck@2
+    - task: SdtReport@2
+    - task: PublishSecurityAnalysisLogs@3
+    - task: PostAnalysis@2
+
+- stage: GitHub
+  dependsOn: Build
+  jobs:
+  - job: Publish
+    pool:
+      name: 1ES
+      demands: ImageOverride -equals PSMMSUbuntu20.04-Secure
+    variables:
+    - group: Publish
+    - name: Version
+      value: $[ stageDependencies.Build.Build.outputs['Package.Version'] ]
+    steps:
+    - download: current
+    - task: GitHubRelease@1
+      inputs:
+        gitHubConnection: GitHub
+        repositoryName: microsoft/vscode-azurearcenabledmachines
+        action: create
+        assets: $(Pipeline.Workspace)/vsix/vscode-azurearcenabledmachines-$(Version).vsix
+        tagSource: userSpecifiedTag
+        tag: v$(Version)
+        title: v$(Version)
+        isDraft: true
+        isPreRelease: true
+        addChangeLog: false
+
+- stage: Marketplace
+  dependsOn: Build
+  jobs:
+  - deployment: Publish
+    environment: vscode-azurearcenabledmachines
+    pool:
+      name: 1ES
+      demands: ImageOverride -equals PSMMSUbuntu20.04-Secure
+    variables:
+    - group: Publish
+    - name: Version
+      value: $[ stageDependencies.Build.Build.outputs['Package.Version'] ]
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+          - task: npmAuthenticate@0
+            inputs:
+              workingFile: .npmrc
+          - script: npm ci
+          - script: npm run publish -- --pat $(VsceToken) --packagePath $(Pipeline.Workspace)/vsix/vscode-azurearcenabledmachines-$(Version).vsix --pre-release
