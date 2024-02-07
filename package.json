@@ -1,6 +1,6 @@
 {
   "name": "vscode-azurearcenabledmachines",
-  "displayName": "Azure Arc-enabled machines for Visual Studio Code",
+  "displayName": "Azure Arc-enabled machines",
   "description": "An Azure Arc-enabled machines extension for Visual Studio Code.",
   "version": "0.0.1",
   "publisher": "ms-azuretools",
@@ -10,9 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/vscode-azureresourcegroups"
+    "url": "https://github.com/microsoft/vscode-azurearcenabledmachines"
   },
-  "homepage": "https://github.com/microsoft/vscode-azureresourcegroups/blob/main/README.md",
+  "homepage": "https://github.com/microsoft/vscode-azurearcenabledmachines/blob/main/README.md",
+  "icon": "resources/ArcEnabledMachine.png",
   "license": "SEE LICENSE IN LICENSE",
   "categories": [
     "Azure"
