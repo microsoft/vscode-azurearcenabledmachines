@@ -7,9 +7,7 @@ import { ext } from "../extensionVariables";
 import { ArcEnabledMachineItem } from "../ArcEnabledMachineItem";
 import { execAsync } from "../constants";
 
-// TODO: This needs a whole lot of work. It's just a proof of concept right now.
-// Like, check that the Az CLI exists and is logged in. Maybe don't even use it
-// all if we can help it.
+// TODO: It would be great to move away from the Azure CLI and toward a Node.JS library.
 export async function runAzSshConfigCommand(machineItem: ArcEnabledMachineItem): Promise<SSHConfig> {
     // Delete any previously created configuration and key files.
     // TODO: Delete these when our session ends too?

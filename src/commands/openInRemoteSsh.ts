@@ -10,6 +10,7 @@ import { verifyRemoteSshExtension } from "../utils/verifyRemoteSshExtension";
 import { runAzSshConfigCommand } from "../utils/runAzSshConfigCommand";
 import { sshConfigPath } from "../constants";
 import { ArcEnabledMachineItem } from "../ArcEnabledMachineItem";
+import { verifyAzureCLI } from "../utils/verifyAzureCLI";
 
 export async function openInRemoteSsh(
     context: IActionContext & { canPickMany?: false },
@@ -18,24 +19,24 @@ export async function openInRemoteSsh(
     // which case we need to pick one.
     node ??= await pickArcEnabledMachine(context);
 
-    // Verify that the Remote - SSH extension is installed and activated.
-    await verifyRemoteSshExtension(context);
-
     await window.withProgress(
         {
             location: ProgressLocation.Notification,
             title: `Setting up SSH for Azure Arc-enabled machine ${node.arcEnabledMachine.name}...`,
-            cancellable: false,
+            cancellable: true,
         },
         async (_progress, _token) => {
             // NOTE: It is definitely defined by the ??= operation above.
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            await openInRemoteSshInternal(node!);
+            await openInRemoteSshInternal(context, node!);
         });
 }
 
-async function openInRemoteSshInternal(
-    node: ArcEnabledMachineItem): Promise<void> {
+async function openInRemoteSshInternal(context: IActionContext, node: ArcEnabledMachineItem): Promise<void> {
+    // Verify that the Azure CLI and Remote - SSH extension are installed.
+    await verifyAzureCLI(context);
+    await verifyRemoteSshExtension(context);
+
     // Get the generated SSH config from the `az ssh config` command for an Arc resource.
     const sshArcConfig = await runAzSshConfigCommand(node);
 

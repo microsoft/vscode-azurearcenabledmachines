@@ -10,6 +10,7 @@ import { openInRemoteSsh } from "./openInRemoteSsh";
 export function registerCommands(): void {
     // Suppress "Report an Issue" button for all errors in favor of the command
     registerErrorHandler(c => c.errorHandling.suppressReportIssue = true);
+    registerCommand(`${ext.prefix}.showOutputChannel`, () => { ext.outputChannel.show(); });
     registerReportIssueCommand(`${ext.prefix}.reportIssue`);
 
     // Used to show the "Remote - SSH" extension in the marketplace when it's not installed but needed
