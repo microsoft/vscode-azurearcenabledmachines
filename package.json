@@ -10,9 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/microsoft/vscode-azureresourcegroups"
+    "url": "https://github.com/microsoft/vscode-azurearcenabledmachines"
   },
-  "homepage": "https://github.com/microsoft/vscode-azureresourcegroups/blob/main/README.md",
+  "homepage": "https://github.com/microsoft/vscode-azurearcenabledmachines/blob/main/README.md",
+  "icon": "resources/ArcEnabledMachine.png",
   "license": "SEE LICENSE IN LICENSE",
   "categories": [
     "Azure"
