@@ -22,14 +22,6 @@ stages:
         workingFile: .npmrc
     - script: npm ci
     - script: npm run package
-    - task: ManifestGeneratorTask@0
-      inputs:
-        BuildComponentPath: $(Build.SourcesDirectory)
-        BuildDropPath: $(Build.ArtifactStagingDirectory)
-        PackageName: vscode-azurearcenabledmachines
-        PackageVersion: $(Package.Version)
-    - publish: $(Build.ArtifactStagingDirectory)/_manifest
-      artifact: _manifest
     - publish: vscode-azurearcenabledmachines-$(Package.Version).vsix
       artifact: vsix
 
@@ -46,7 +38,17 @@ stages:
       inputs:
         FileDirPath: $(Pipeline.Workspace)/vsix/
     - task: CredScan@3
+    - task: ManifestGeneratorTask@0
+      inputs:
+        BuildComponentPath: $(Build.SourcesDirectory)
+        BuildDropPath: $(Build.ArtifactStagingDirectory)
+        PackageName: vscode-azurearcenabledmachines
+        PackageVersion: $(Package.Version)
+    - publish: $(Build.ArtifactStagingDirectory)/_manifest
+      artifact: _manifest
     - task: PoliCheck@2
+      inputs:
+        optionsFC: 1
     - task: SdtReport@2
     - task: PublishSecurityAnalysisLogs@3
     - task: PostAnalysis@2
