@@ -94,8 +94,9 @@ stages:
         deploy:
           steps:
           - download: current
+          - checkout: self
           - task: npmAuthenticate@0
             inputs:
               workingFile: .npmrc
           - script: npm ci
-          - script: npm run publish -- --pat $(VsceToken) --packagePath $(Pipeline.Workspace)/vsix/vscode-azurearcenabledmachines-$(Version).vsix --pre-release
+          - script: npm run publish -- --pat $(VsceToken) --packagePath $(Pipeline.Workspace)/vsix/vscode-azurearcenabledmachines-$(Version).vsix
