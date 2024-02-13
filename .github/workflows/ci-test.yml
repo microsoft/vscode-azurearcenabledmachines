@@ -20,16 +20,17 @@ jobs:
       DISPLAY: ':99.0'
     steps:
       - uses: actions/checkout@v4
+      - run: cp .github/workflows/npmrc .npmrc
       - uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: npm
           cache-dependency-path: package-lock.json
-      - name: Start X virtual framebuffer
+      - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         if: matrix.os == 'ubuntu-latest'
-        run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      - run: rm .npmrc
-      - run: npm ci
+      - run: npm ci --ignore-scripts
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.AZURE_NPM_TOKEN }}
       - run: npm run test
       - run: npm run package
       - uses: actions/upload-artifact@v4
