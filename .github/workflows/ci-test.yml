@@ -30,7 +30,7 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
       - run: npm ci --ignore-scripts
         env:
-          NPM_AUTH_TOKEN: ${{ secrets.AZURE_NPM_TOKEN }}
+          NPM_PASSWORD: ${{ secrets.AZURE_NPM_PASSWORD_BASE64 }}
       - run: npm run test
       - run: npm run package
       - uses: actions/upload-artifact@v4
