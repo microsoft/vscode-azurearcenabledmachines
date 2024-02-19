@@ -28,7 +28,7 @@ jobs:
           cache-dependency-path: package-lock.json
       - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         if: matrix.os == 'ubuntu-latest'
-      - run: npm ci --ignore-scripts
+      - run: npm ci
         env:
           NPM_PASSWORD: ${{ secrets.AZURE_NPM_PASSWORD_BASE64 }}
       - run: npm run test
