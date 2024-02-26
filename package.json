@@ -100,6 +100,6 @@
     "@microsoft/vscode-azext-utils": "^2.1.5",
     "@microsoft/vscode-azureresources-api": "^2.2.0",
     "fs-extra": "^11.2.0",
-    "ssh-config": "^4.4.1"
+    "ssh-config": "^4.4.2"
   }
 }
