@@ -26,9 +26,7 @@ export async function openInRemoteSsh(
             cancellable: true,
         },
         async (_progress, _token) => {
-            // NOTE: It is definitely defined by the ??= operation above.
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            await openInRemoteSshInternal(context, node!);
+            await openInRemoteSshInternal(context, node);
         });
 }
 
