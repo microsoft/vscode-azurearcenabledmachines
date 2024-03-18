@@ -1,0 +1,157 @@
+#################################################################################
+#                               OneBranch Pipelines                             #
+# This pipeline was created by EasyStart from a sample located at:              #
+#   https://aka.ms/obpipelines/easystart/samples                                #
+# Documentation:  https://aka.ms/obpipelines                                    #
+# Yaml Schema:    https://aka.ms/obpipelines/yaml/schema                        #
+# Retail Tasks:   https://aka.ms/obpipelines/tasks                              #
+# Support:        https://aka.ms/onebranchsup                                   #
+#################################################################################
+
+trigger: none
+
+parameters:
+- name: debug
+  displayName: Enable debug output
+  type: boolean
+  default: false
+
+variables:
+  system.debug: ${{ parameters.debug }}
+  WindowsContainerImage: onebranch.azurecr.io/windows/ltsc2019/vse2022:latest
+
+resources:
+  repositories: 
+    - repository: templates
+      type: git
+      name: OneBranch.Pipelines/GovernedTemplates
+      ref: refs/heads/main
+
+extends:
+  # https://aka.ms/obpipelines/templates
+  template: v2/OneBranch.Official.CrossPlat.yml@templates 
+  parameters:
+    globalSdl: # https://aka.ms/obpipelines/sdl
+      asyncSdl:
+        enabled: true
+    stages:
+    - stage: build
+      jobs:
+      - job: main
+        displayName: Build package
+        pool:
+          type: windows
+        variables:
+          ob_outputDirectory: $(Build.SourcesDirectory)/out
+        steps:
+          - pwsh: Write-Output "##vso[task.setvariable variable=version;isOutput=true]$((Get-Content -Raw -Path package.json | ConvertFrom-Json).version)"
+            name: package
+            displayName: Get version from package.json
+          - task: onebranch.pipeline.version@1
+            displayName: Set OneBranch version
+            inputs:
+              system: Custom
+              customVersion: $(package.version)
+          - task: UseNode@1
+            displayName: Use Node 18.x
+            inputs:
+              version: 18.x
+          - task: npmAuthenticate@0
+            displayName: Authenticate NPM with Azure Artifacts
+            inputs:
+              workingFile: .npmrc
+          - pwsh: npm ci
+            displayName: Install NPM packages
+          - pwsh: npm run compile -- --minify
+            displayName: Build minified extension
+          - task: onebranch.pipeline.signing@1
+            displayName: Sign 1st-party files
+            inputs:
+              command: sign
+              signing_environment: external_distribution
+              search_root: $(Build.SourcesDirectory)/dist
+              files_to_sign: extension.js
+          - pwsh: New-Item -ItemType Directory -Force out && npm run package -- --out out/
+            displayName: Create package
+      - job: test
+        displayName: Build and run tests
+        pool:
+          type: windows
+          isCustom: true
+          name: Azure Pipelines
+          vmImage: windows-latest
+        variables:
+          ob_outputDirectory: $(Build.SourcesDirectory)/out
+          skipComponentGovernanceDetection: true
+        steps:
+          - task: UseNode@1
+            displayName: Use Node 18.x
+            inputs:
+              version: 18.x
+          - task: npmAuthenticate@0
+            displayName: Authenticate NPM with Azure Artifacts
+            inputs:
+              workingFile: .npmrc
+          - pwsh: npm ci
+            displayName: Install NPM packages
+          - pwsh: npm run test
+            displayName: Run tests
+    - stage: release
+      dependsOn: build
+      variables:
+        version: $[ stageDependencies.build.main.outputs['package.version'] ]
+        drop: $(Pipeline.Workspace)/drop_build_main
+      jobs:
+      - job: validation
+        displayName: Manual validation
+        pool:
+          type: agentless
+        timeoutInMinutes: 1440
+        steps:
+        - task: ManualValidation@0
+          displayName: Wait 24 hours for validation
+          inputs:
+            notifyUsers: $(Build.RequestedForEmail)
+            instructions: Please validate the release
+            timeoutInMinutes: 1440
+      - job: github
+        dependsOn: validation
+        displayName: Publish draft to GitHub
+        pool:
+          type: windows
+        variables:
+          ob_outputDirectory: $(Build.SourcesDirectory)/out
+        steps:
+        - download: current
+          displayName: Download artifacts
+        - task: GitHubRelease@1
+          displayName: Create GitHub release
+          inputs:
+            gitHubConnection: GitHub
+            repositoryName: microsoft/vscode-azurearcenabledmachines
+            action: create
+            assets: $(drop)/vscode-azurearcenabledmachines-$(version).vsix
+            releaseNotesFilePath: CHANGELOG.md
+            tagSource: userSpecifiedTag
+            tag: v$(version)
+            isDraft: true
+      - job: vscode
+        dependsOn: validation
+        displayName: Publish to VS Code Marketplace
+        pool:
+          type: windows
+        variables:
+          - group: VSCodeMarketplace
+          - name: ob_outputDirectory
+            value: $(Build.SourcesDirectory)/out
+        steps:
+        - download: current
+          displayName: Download artifacts
+        - task: npmAuthenticate@0
+          displayName: Install NPM packages (for vsce)
+          inputs:
+            workingFile: .npmrc
+        - pwsh: npm ci
+          displayName: Install NPM packages (for vsce)
+        - pwsh: npm run publish -- --pat $(token) --packagePath $(drop)/vscode-azurearcenabledmachines-$(version).vsix
+          displayName: Run vsce publish
