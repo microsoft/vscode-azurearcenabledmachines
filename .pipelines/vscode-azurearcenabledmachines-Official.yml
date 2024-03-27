@@ -34,6 +34,7 @@ extends:
     globalSdl: # https://aka.ms/obpipelines/sdl
       asyncSdl:
         enabled: true
+        forStages: [build]
     stages:
     - stage: build
       jobs:
@@ -129,12 +130,14 @@ extends:
           inputs:
             gitHubConnection: GitHub
             repositoryName: microsoft/vscode-azurearcenabledmachines
-            action: create
             assets: $(drop)/vscode-azurearcenabledmachines-$(version).vsix
-            releaseNotesFilePath: CHANGELOG.md
             tagSource: userSpecifiedTag
             tag: v$(version)
             isDraft: true
+            addChangeLog: false
+            releaseNotesSource: inline
+            releaseNotesInline: |
+              # TODO: Generate release notes on GitHub!
       - job: vscode
         dependsOn: validation
         displayName: Publish to VS Code Marketplace

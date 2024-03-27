@@ -68,15 +68,7 @@
       ],
       2
     ],
-    "import/order": "error",
-    "import/no-internal-modules": [
-      "error",
-      {
-        "allow": [
-          "yaml/types"
-        ]
-      }
-    ]
+    "import/order": "error"
   },
   "ignorePatterns": [
     "out",
