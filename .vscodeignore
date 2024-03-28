@@ -1,12 +1,5 @@
-.config/
-.github/
-.gitignore
-.pipelines/
-.vscode-test/
-.vscode-test.mjs
-.vscode/
-.eslintrc.json
-src/
-tsconfig.json
-tsconfig.tsbuildinfo
-node_modules/
+**
+!*.md
+!dist/extension.js
+!resources/
+!LICENSE
