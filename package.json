@@ -88,7 +88,7 @@
     "eslint-plugin-import": "^2.29.1",
     "glob": "^10.3.12",
     "source-map-support": "^0.5.21",
-    "typescript": "^5.4.3"
+    "typescript": "^5.4.4"
   },
   "extensionDependencies": [
     "ms-azuretools.vscode-azureresourcegroups"
