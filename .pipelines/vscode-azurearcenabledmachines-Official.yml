@@ -44,6 +44,7 @@ extends:
           type: windows
         variables:
           ob_outputDirectory: $(Build.SourcesDirectory)/out
+          ob_sdl_codeSignValidation_excludes: -|**\*.js # Node.js JavaScript signatures are not supported
         steps:
           - pwsh: Write-Output "##vso[task.setvariable variable=version;isOutput=true]$((Get-Content -Raw -Path package.json | ConvertFrom-Json).version)"
             name: package
@@ -57,21 +58,10 @@ extends:
             displayName: Use Node 18.x
             inputs:
               version: 18.x
-          - task: npmAuthenticate@0
-            displayName: Authenticate NPM with Azure Artifacts
-            inputs:
-              workingFile: .npmrc
           - pwsh: npm ci
             displayName: Install NPM packages
           - pwsh: npm run compile -- --minify
             displayName: Build minified extension
-          - task: onebranch.pipeline.signing@1
-            displayName: Sign 1st-party files
-            inputs:
-              command: sign
-              signing_environment: external_distribution
-              search_root: $(Build.SourcesDirectory)/dist
-              files_to_sign: extension.js
           - pwsh: New-Item -ItemType Directory -Force out && npm run package -- --out out/
             displayName: Create package
       - job: test
@@ -89,10 +79,6 @@ extends:
             displayName: Use Node 18.x
             inputs:
               version: 18.x
-          - task: npmAuthenticate@0
-            displayName: Authenticate NPM with Azure Artifacts
-            inputs:
-              workingFile: .npmrc
           - pwsh: npm ci
             displayName: Install NPM packages
           - pwsh: npm run test
@@ -103,20 +89,7 @@ extends:
         version: $[ stageDependencies.build.main.outputs['package.version'] ]
         drop: $(Pipeline.Workspace)/drop_build_main
       jobs:
-      - job: validation
-        displayName: Manual validation
-        pool:
-          type: agentless
-        timeoutInMinutes: 1440
-        steps:
-        - task: ManualValidation@0
-          displayName: Wait 24 hours for validation
-          inputs:
-            notifyUsers: $(Build.RequestedForEmail)
-            instructions: Please validate the release
-            timeoutInMinutes: 1440
       - job: github
-        dependsOn: validation
         displayName: Publish draft to GitHub
         pool:
           type: windows
@@ -138,6 +111,18 @@ extends:
             releaseNotesSource: inline
             releaseNotesInline: |
               # TODO: Generate release notes on GitHub!
+      - job: validation
+        displayName: Manual validation
+        pool:
+          type: agentless
+        timeoutInMinutes: 1440
+        steps:
+        - task: ManualValidation@0
+          displayName: Wait 24 hours for validation
+          inputs:
+            notifyUsers: $(Build.RequestedForEmail)
+            instructions: Please validate the release
+            timeoutInMinutes: 1440
       - job: vscode
         dependsOn: validation
         displayName: Publish to VS Code Marketplace
@@ -150,11 +135,18 @@ extends:
         steps:
         - download: current
           displayName: Download artifacts
-        - task: npmAuthenticate@0
-          displayName: Install NPM packages (for vsce)
-          inputs:
-            workingFile: .npmrc
         - pwsh: npm ci
           displayName: Install NPM packages (for vsce)
-        - pwsh: npm run publish -- --pat $(token) --packagePath $(drop)/vscode-azurearcenabledmachines-$(version).vsix
+        - task: AzureCLI@2
           displayName: Run vsce publish
+          inputs:
+            azureSubscription: vscode-marketplace
+            scriptType: pscore
+            scriptLocation: inlineScript
+            inlineScript: |
+              $publishArgs = @(
+                '--azure-credential'
+                '--packagePath'
+                '$(drop)/vscode-azurearcenabledmachines-$(version).vsix'
+              )
+              npm run publish -- @publishArgs
