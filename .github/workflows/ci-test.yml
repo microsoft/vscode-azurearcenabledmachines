@@ -20,7 +20,6 @@ jobs:
       DISPLAY: ':99.0'
     steps:
       - uses: actions/checkout@v4
-      - run: cp .github/workflows/npmrc .npmrc
       - uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -29,8 +28,6 @@ jobs:
       - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
         if: matrix.os == 'ubuntu-latest'
       - run: npm ci
-        env:
-          NPM_PASSWORD: ${{ secrets.AZURE_NPM_PASSWORD_BASE64 }}
       - run: npm run test
       - run: npm run compile
       - run: npm run package
