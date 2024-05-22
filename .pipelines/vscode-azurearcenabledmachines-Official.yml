@@ -109,8 +109,7 @@ extends:
             isDraft: true
             addChangeLog: false
             releaseNotesSource: inline
-            releaseNotesInline: |
-              # TODO: Generate release notes on GitHub!
+            releaseNotesInline: "<!-- TODO: Generate release notes on GitHub! -->"
       - job: validation
         displayName: Manual validation
         pool:
