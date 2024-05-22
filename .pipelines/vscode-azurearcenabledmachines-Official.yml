@@ -70,7 +70,7 @@ extends:
           type: windows
           isCustom: true
           name: Azure Pipelines
-          vmImage: windows-latest
+          vmImage: macOS-latest
         variables:
           ob_outputDirectory: $(Build.SourcesDirectory)/out
           skipComponentGovernanceDetection: true

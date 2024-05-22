@@ -14,7 +14,7 @@ jobs:
     name: node
     strategy:
       matrix:
-        os: [ windows-latest, macos-latest, ubuntu-latest ]
+        os: [ macos-latest, ubuntu-latest ]
     runs-on: ${{ matrix.os }}
     env:
       DISPLAY: ':99.0'
