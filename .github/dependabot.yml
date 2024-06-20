@@ -1,0 +1,23 @@
+version: 2
+
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+  ignore:
+    - dependency-name: "@types/node"
+    - dependency-name: "@types/vscode"
+  groups:
+    eslint:
+      patterns:
+        - "esbuild"
+        - "eslint*"
+        - "@typescript-eslint/*"
+    vscode-az:
+      patterns:
+        - "@microsoft/vscode*"
+- package-ecosystem: github-actions
+  directory: "/"
+  schedule:
+    interval: weekly
