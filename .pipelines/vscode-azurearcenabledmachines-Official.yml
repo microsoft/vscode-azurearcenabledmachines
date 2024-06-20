@@ -10,6 +10,14 @@
 
 trigger: none
 
+schedules:
+- cron: '16 17 * * 4'
+  displayName: Weekly CodeQL
+  branches:
+    include:
+    - main
+  always: true
+
 parameters:
 - name: debug
   displayName: Enable debug output
@@ -85,6 +93,7 @@ extends:
             displayName: Run tests
     - stage: release
       dependsOn: build
+      condition: ne(variables['Build.Reason'], 'Schedule')
       variables:
         version: $[ stageDependencies.build.main.outputs['package.version'] ]
         drop: $(Pipeline.Workspace)/drop_build_main
