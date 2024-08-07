@@ -26,7 +26,7 @@ parameters:
 
 variables:
   system.debug: ${{ parameters.debug }}
-  WindowsContainerImage: onebranch.azurecr.io/windows/ltsc2019/vse2022:latest
+  WindowsContainerImage: onebranch.azurecr.io/windows/ltsc2022/vse2022:latest
 
 resources:
   repositories: 
@@ -43,6 +43,10 @@ extends:
       asyncSdl:
         enabled: true
         forStages: [build]
+    featureFlags:
+      WindowsHostVersion:
+        Version: 2022
+        Network: Netlock
     stages:
     - stage: build
       jobs:
@@ -62,11 +66,7 @@ extends:
             inputs:
               system: Custom
               customVersion: $(package.version)
-          - task: UseNode@1
-            displayName: Use Node 18.x
-            inputs:
-              version: 18.x
-          - pwsh: npm ci
+          - pwsh: npm ci --verbose --omit=optional
             displayName: Install NPM packages
           - pwsh: npm run compile -- --minify
             displayName: Build minified extension
@@ -78,7 +78,7 @@ extends:
           type: windows
           isCustom: true
           name: Azure Pipelines
-          vmImage: macOS-latest
+          vmImage: macOS-latest # Tests only reliably work on macOS
         variables:
           ob_outputDirectory: $(Build.SourcesDirectory)/out
           skipComponentGovernanceDetection: true
@@ -115,6 +115,7 @@ extends:
             assets: $(drop)/vscode-azurearcenabledmachines-$(version).vsix
             tagSource: userSpecifiedTag
             tag: v$(version)
+            target: main
             isDraft: true
             addChangeLog: false
             releaseNotesSource: inline
@@ -143,7 +144,7 @@ extends:
         steps:
         - download: current
           displayName: Download artifacts
-        - pwsh: npm ci
+        - pwsh: npm ci --verbose --omit=optional
           displayName: Install NPM packages (for vsce)
         - task: AzureCLI@2
           displayName: Run vsce publish
