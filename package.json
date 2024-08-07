@@ -72,7 +72,7 @@
     "pretest": "npm run lint && npm run compile-tests",
     "test": "vscode-test"
   },
-  "devDependencies": {
+  "optionalDependencies": {
     "@microsoft/eslint-plugin-sdl": "github:microsoft/eslint-plugin-sdl",
     "@types/mocha": "^10.0.7",
     "@types/node": "~18.18.2",
@@ -81,8 +81,6 @@
     "@typescript-eslint/parser": "^7.18.0",
     "@vscode/test-cli": "^0.0.8",
     "@vscode/test-electron": "^2.4.1",
-    "@vscode/vsce": "^2.31.1",
-    "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-import": "^2.29.1",
@@ -93,6 +91,10 @@
   "extensionDependencies": [
     "ms-azuretools.vscode-azureresourcegroups"
   ],
+  "devDependencies": {
+    "esbuild": "^0.20.2",
+    "@vscode/vsce": "^2.31.1"
+  },
   "dependencies": {
     "@azure/arm-hybridcompute": "^3.0.0",
     "@microsoft/vscode-azext-azureutils": "^3.0.1",
