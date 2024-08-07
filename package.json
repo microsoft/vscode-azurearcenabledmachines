@@ -74,21 +74,21 @@
   },
   "devDependencies": {
     "@microsoft/eslint-plugin-sdl": "github:microsoft/eslint-plugin-sdl",
-    "@types/mocha": "^10.0.6",
+    "@types/mocha": "^10.0.7",
     "@types/node": "~18.18.2",
     "@types/vscode": "~1.89.0",
-    "@typescript-eslint/eslint-plugin": "^7.10.0",
-    "@typescript-eslint/parser": "^7.10.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "@vscode/test-cli": "^0.0.8",
-    "@vscode/test-electron": "^2.3.10",
-    "@vscode/vsce": "^2.26.1",
+    "@vscode/test-electron": "^2.4.1",
+    "@vscode/vsce": "^2.31.1",
     "esbuild": "^0.20.2",
     "eslint": "^8.57.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-import": "^2.29.1",
-    "glob": "^10.3.16",
+    "glob": "^10.4.5",
     "source-map-support": "^0.5.21",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.4"
   },
   "extensionDependencies": [
     "ms-azuretools.vscode-azureresourcegroups"
@@ -96,8 +96,8 @@
   "dependencies": {
     "@azure/arm-hybridcompute": "^3.0.0",
     "@microsoft/vscode-azext-azureutils": "^3.0.1",
-    "@microsoft/vscode-azext-utils": "^2.5.0",
-    "@microsoft/vscode-azureresources-api": "^2.2.1",
+    "@microsoft/vscode-azext-utils": "^2.5.4",
+    "@microsoft/vscode-azureresources-api": "^2.3.1",
     "fs-extra": "^11.2.0",
     "ssh-config": "^4.4.4"
   }
