@@ -3,7 +3,7 @@
 
 import { readFile, writeFile } from "fs/promises";
 import { IActionContext } from "@microsoft/vscode-azext-utils";
-import { parse } from "ssh-config";
+import { parse, stringify } from "ssh-config";
 import { ProgressLocation, commands, window } from "vscode";
 import { pickArcEnabledMachine } from "../utils/pickArcEnabledMachine";
 import { verifyRemoteSshExtension } from "../utils/verifyRemoteSshExtension";
@@ -47,8 +47,9 @@ async function openInRemoteSshInternal(context: IActionContext, node: ArcEnabled
         sshConfig.remove({ Host: node.sshHostName });
     }
 
-    const combinedConfig = sshConfig.concat(sshArcConfig);
-    await writeFile(sshConfigPath, combinedConfig.toString());
+    // Add the new config after computing it so we're not just concatenating strings.
+    const combinedConfig = sshConfig.append(sshArcConfig.compute({ Host: node.sshHostName }));
+    await writeFile(sshConfigPath, stringify(combinedConfig));
 
     const host = node.sshHostName; // No idea why I have to extract this first.
     await commands.executeCommand("opensshremotes.openEmptyWindow", { host });
