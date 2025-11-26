@@ -9,15 +9,15 @@
 #################################################################################
 
 trigger:
-- main
+  - main
 
 schedules:
-- cron: "16 17 * * 4"
-  displayName: Weekly CodeQL
-  branches:
-    include:
-    - main
-  always: true
+  - cron: "16 17 * * 4"
+    displayName: Weekly CodeQL
+    branches:
+      include:
+        - main
+    always: true
 
 resources:
   repositories:
@@ -61,96 +61,96 @@ extends:
     release:
       category: NonAzure
     stages:
-    - stage: build
-      jobs:
-      - job: main
-        displayName: Build package
-        pool:
-          type: windows
+      - stage: build
+        jobs:
+          - job: main
+            displayName: Build package
+            pool:
+              type: windows
+            variables:
+              ob_outputDirectory: $(Build.SourcesDirectory)/out
+              ob_sdl_codeSignValidation_excludes: -|**\*.js # Node.js JavaScript signatures are not supported
+            steps:
+              - pwsh: Write-Output "##vso[task.setvariable variable=version;isOutput=true]$((Get-Content -Raw -Path package.json | ConvertFrom-Json).version)"
+                name: package
+                displayName: Get version from package.json
+              - task: onebranch.pipeline.version@1
+                displayName: Set OneBranch version
+                inputs:
+                  system: Custom
+                  customVersion: $(package.version)
+              - pwsh: npm ci --verbose
+                displayName: Install NPM packages
+              - pwsh: npm run compile -- --minify
+                displayName: Build minified extension
+              - pwsh: npm run test
+                displayName: Run linter and unit tests
+              - pwsh: New-Item -ItemType Directory -Force out && npm run package
+                displayName: Create package
+              - pwsh: |
+                  npx vsce generate-manifest --packagePath out/vscode-azurearcenabledmachines-$(package.version).vsix
+                  cp out/vscode-azurearcenabledmachines-$(package.version).manifest out/vscode-azurearcenabledmachines-$(package.version).signature.p7s
+                displayName: Generate VSIX manifest
+              - task: onebranch.pipeline.signing@1
+                displayName: Sign VSIX manifest
+                inputs:
+                  command: sign
+                  cp_code: "CP-401405-VSCodePublisherSign"
+                  search_root: $(Build.SourcesDirectory)/out
+                  files_to_sign: "*.signature.p7s"
+      - stage: release
+        dependsOn: build
+        condition: and(succeeded(), ${{ eq(parameters.Release, true) }})
         variables:
-          ob_outputDirectory: $(Build.SourcesDirectory)/out
-          ob_sdl_codeSignValidation_excludes: -|**\*.js # Node.js JavaScript signatures are not supported
-        steps:
-          - pwsh: Write-Output "##vso[task.setvariable variable=version;isOutput=true]$((Get-Content -Raw -Path package.json | ConvertFrom-Json).version)"
-            name: package
-            displayName: Get version from package.json
-          - task: onebranch.pipeline.version@1
-            displayName: Set OneBranch version
-            inputs:
-              system: Custom
-              customVersion: $(package.version)
-          - pwsh: npm ci --verbose
-            displayName: Install NPM packages
-          - pwsh: npm run compile -- --minify
-            displayName: Build minified extension
-          - pwsh: npm run test
-            displayName: Run linter and unit tests
-          - pwsh: New-Item -ItemType Directory -Force out && npm run package
-            displayName: Create package
-          - pwsh: |
-              npx vsce generate-manifest --packagePath out/vscode-azurearcenabledmachines-$(package.version).vsix
-              cp out/vscode-azurearcenabledmachines-$(package.version).manifest out/vscode-azurearcenabledmachines-$(package.version).signature.p7s
-            displayName: Generate VSIX manifest
-          - task: onebranch.pipeline.signing@1
-            displayName: Sign VSIX manifest
-            inputs:
-              command: sign
-              cp_code: "CP-401405-VSCodePublisherSign"
-              search_root: $(Build.SourcesDirectory)/out
-              files_to_sign: "*.signature.p7s"
-    - stage: release
-      dependsOn: build
-      condition: and(succeeded(), ${{ eq(parameters.Release, true) }})
-      variables:
-        ob_release_environment: ${{ iif(parameters.OfficialBuild, 'Production', 'Test') }}
-        version: $[ stageDependencies.build.main.outputs['package.version'] ]
-      jobs:
-      - job: github
-        displayName: Publish draft to GitHub
-        pool:
-          type: release
-        templateContext:
-          inputs:
-            - input: pipelineArtifact
-              artifactName: drop_build_main
-        steps:
-        - task: GitHubRelease@1
-          displayName: Create GitHub release
-          inputs:
-            gitHubConnection: GitHub
-            repositoryName: microsoft/vscode-azurearcenabledmachines
-            assets: |
-              $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).vsix
-              $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).manifest
-              $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).signature.p7s
-            tagSource: userSpecifiedTag
-            tag: v$(version)
-            target: main
-            isDraft: true
-            addChangeLog: false
-            releaseNotesSource: inline
-            releaseNotesInline: "<!-- TODO: Generate release notes on GitHub! -->"
-      - job: vscode
-        displayName: Publish to VS Code Marketplace
-        pool:
-          type: release
-        templateContext:
-          inputs:
-            - input: pipelineArtifact
-              artifactName: drop_build_main
-          workflow: vsce
-          vsce:
-            serviceConnection: vscode-marketplace
-            vsixPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).vsix"
-            signaturePath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).signature.p7s"
-            manifestPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).manifest"
-            preRelease: $(prerelease)
-            useCustomVSCE: true
-            feed:
-              organization: mscodehub
-              project: PowerShellCore
-              feedName: PowerShellCore_PublicPackages
-        steps:
-        - pwsh: |
-            Write-Host Publishing: $(vsixVersion), pre-release: $(prerelease)
-          displayName: No-op step to satisfy pipeline requirements
+          ob_release_environment: ${{ iif(parameters.OfficialBuild, 'Production', 'Test') }}
+          version: $[ stageDependencies.build.main.outputs['package.version'] ]
+        jobs:
+          - job: github
+            displayName: Publish draft to GitHub
+            pool:
+              type: release
+            templateContext:
+              inputs:
+                - input: pipelineArtifact
+                  artifactName: drop_build_main
+            steps:
+              - task: GitHubRelease@1
+                displayName: Create GitHub release
+                inputs:
+                  gitHubConnection: GitHub
+                  repositoryName: microsoft/vscode-azurearcenabledmachines
+                  assets: |
+                    $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).vsix
+                    $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).manifest
+                    $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).signature.p7s
+                  tagSource: userSpecifiedTag
+                  tag: v$(version)
+                  target: main
+                  isDraft: true
+                  addChangeLog: false
+                  releaseNotesSource: inline
+                  releaseNotesInline: "<!-- TODO: Generate release notes on GitHub! -->"
+          - job: vscode
+            displayName: Publish to VS Code Marketplace
+            pool:
+              type: release
+            templateContext:
+              inputs:
+                - input: pipelineArtifact
+                  artifactName: drop_build_main
+              workflow: vsce
+              vsce:
+                serviceConnection: vscode-marketplace
+                vsixPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).vsix"
+                signaturePath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).signature.p7s"
+                manifestPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).manifest"
+                preRelease: $(prerelease)
+                useCustomVSCE: true
+                feed:
+                  organization: mscodehub
+                  project: PowerShellCore
+                  feedName: PowerShellCore_PublicPackages
+            steps:
+              - pwsh: |
+                  Write-Host Publishing: $(vsixVersion), pre-release: $(prerelease)
+                displayName: No-op step to satisfy pipeline requirements

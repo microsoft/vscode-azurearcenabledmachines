@@ -3,34 +3,49 @@
 
 import { readFile, rm } from "fs/promises";
 import SSHConfig, { parse } from "ssh-config";
-import { ext } from "../extensionVariables";
 import { ArcEnabledMachineItem } from "../ArcEnabledMachineItem";
 import { execAsync } from "../constants";
+import { ext } from "../extensionVariables";
 
 // TODO: It would be great to move away from the Azure CLI and toward a Node.JS library.
-export async function runAzSshConfigCommand(machineItem: ArcEnabledMachineItem): Promise<SSHConfig> {
+export async function runAzSshConfigCommand(
+    machineItem: ArcEnabledMachineItem,
+): Promise<SSHConfig> {
     // Delete any previously created configuration and key files.
     // TODO: Delete these when our session ends too?
     await rm(machineItem.sshConfigFile, { force: true });
     await rm(machineItem.sshConfigFolder, { force: true, recursive: true });
 
     const command = [
-        "az", "ssh", "config",
-        "--file", machineItem.sshConfigFile,
-        "--subscription", machineItem.subscription.subscriptionId,
-        "--resource-group", machineItem.arcEnabledMachine.resourceGroup,
-        "--name", machineItem.arcEnabledMachine.name,
+        "az",
+        "ssh",
+        "config",
+        "--file",
+        machineItem.sshConfigFile,
+        "--subscription",
+        machineItem.subscription.subscriptionId,
+        "--resource-group",
+        machineItem.arcEnabledMachine.resourceGroup,
+        "--name",
+        machineItem.arcEnabledMachine.name,
         // Hopefully not necessary but we can't answer prompts. Unfortunately
         // this doesn't stop it from prompting to overwrite the generated RSA
         // keys, hence the above.
-        "--yes", "--overwrite",
+        "--yes",
+        "--overwrite",
         // This is a secret type that works regardless of the actual type of the
         // Azure Arc-enabled machine.
-        "--resource-type", "arc_resource_type_placeholder"].join(" ");
+        "--resource-type",
+        "arc_resource_type_placeholder",
+    ].join(" ");
 
     const { stdout, stderr } = await execAsync(command);
-    ext.outputChannel.appendLog(stdout, { resourceName: "az ssh config stdout" });
-    ext.outputChannel.appendLog(stderr, { resourceName: "az ssh config stderr" });
+    ext.outputChannel.appendLog(stdout, {
+        resourceName: "az ssh config stdout",
+    });
+    ext.outputChannel.appendLog(stderr, {
+        resourceName: "az ssh config stderr",
+    });
     const config = await readFile(machineItem.sshConfigFile, "utf8");
     return parse(config);
 }
