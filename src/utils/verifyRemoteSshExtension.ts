@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IActionContext } from "@microsoft/vscode-azext-utils";
+import type { IActionContext } from "@microsoft/vscode-azext-utils";
 import { extensions } from "vscode";
 import { ext } from "../extensionVariables";
 import { remoteSshExtensionId } from "../constants";

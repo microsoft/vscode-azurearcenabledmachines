@@ -1,20 +1,17 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "lib": [
-      "es6"
-    ],
-    "sourceMap": true,
-    "rootDir": "src",
+    "target": "ESNext",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "checkJs": true,
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
     "strict": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "strictNullChecks": true,
-    "esModuleInterop": true
-  }
+    "noEmit": true,
+    "module": "Preserve"
+  },
+  "include": ["**/*.ts", "eslint.config.mjs", ".vscode-test.mjs"],
+  "exclude": ["node_modules"]
 }

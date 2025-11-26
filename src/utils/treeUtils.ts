@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { TreeItemIconPath } from "@microsoft/vscode-azext-utils";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import type { TreeItemIconPath } from "@microsoft/vscode-azext-utils";
 import { Uri } from "vscode";
 import { ext } from "../extensionVariables";
 

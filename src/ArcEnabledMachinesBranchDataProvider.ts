@@ -1,10 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { AzureResource, AzureResourceBranchDataProvider, AzureResourceModel, AzureSubscription } from "@microsoft/vscode-azureresources-api";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import type { AzureResource, AzureResourceBranchDataProvider, AzureResourceModel, AzureSubscription } from "@microsoft/vscode-azureresources-api";
 import { TreeItem } from "vscode";
-import { IActionContext, callWithTelemetryAndErrorHandling, nonNullProp } from "@microsoft/vscode-azext-utils";
-import { ArcEnabledMachineItem, ArcEnabledMachineModel } from "./ArcEnabledMachineItem";
+import { type IActionContext, callWithTelemetryAndErrorHandling, nonNullProp } from "@microsoft/vscode-azext-utils";
+import { ArcEnabledMachineItem, type ArcEnabledMachineModel } from "./ArcEnabledMachineItem";
 
 export interface ArcEnabledMachinesResourceModel extends AzureResourceModel {
     subscription: AzureSubscription;

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { HybridComputeManagementClient } from "@azure/arm-hybridcompute";
-import { AzExtClientContext, createAzureClient } from "@microsoft/vscode-azext-azureutils";
+import { type AzExtClientContext, createAzureClient } from "@microsoft/vscode-azext-azureutils";
 
 // Lazy-load @azure packages to improve startup performance.
 export async function createHybridComputeClient(context: AzExtClientContext): Promise<HybridComputeManagementClient> {
