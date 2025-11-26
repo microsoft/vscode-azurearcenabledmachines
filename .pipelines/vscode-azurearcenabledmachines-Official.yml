@@ -30,7 +30,7 @@ variables:
   WindowsContainerImage: onebranch.azurecr.io/windows/ltsc2022/vse2022:latest
 
 resources:
-  repositories: 
+  repositories:
     - repository: templates
       type: git
       name: OneBranch.Pipelines/GovernedTemplates
@@ -38,7 +38,7 @@ resources:
 
 extends:
   # https://aka.ms/obpipelines/templates
-  template: v2/OneBranch.Official.CrossPlat.yml@templates 
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
   parameters:
     globalSdl: # https://aka.ms/obpipelines/sdl
       asyncSdl:
@@ -86,9 +86,9 @@ extends:
           skipComponentGovernanceDetection: true
         steps:
           - task: UseNode@1
-            displayName: Use Node 20.x
+            displayName: Use Node 22.x
             inputs:
-              version: 20.x
+              version: 22.x
           - pwsh: npm ci
             displayName: Install NPM packages
           - pwsh: npm run test
