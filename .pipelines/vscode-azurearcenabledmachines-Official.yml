@@ -141,9 +141,9 @@ extends:
               workflow: vsce
               vsce:
                 serviceConnection: vscode-marketplace
-                vsixPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).vsix"
-                signaturePath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).signature.p7s"
-                manifestPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).manifest"
+                vsixPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).vsix"
+                signaturePath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).signature.p7s"
+                manifestPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).manifest"
                 preRelease: $(prerelease)
                 useCustomVSCE: true
                 feed:
@@ -152,5 +152,5 @@ extends:
                   feedName: PowerShellCore_PublicPackages
             steps:
               - pwsh: |
-                  Write-Host Publishing: $(vsixVersion), pre-release: $(prerelease)
+                  Write-Host Publishing: $(version), pre-release: $(prerelease)
                 displayName: No-op step to satisfy pipeline requirements
