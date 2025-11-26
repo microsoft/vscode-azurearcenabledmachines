@@ -65,10 +65,17 @@
     "compile": "esbuild ./src/extension.ts --outdir=dist --sourcemap --bundle --external:vscode --platform=node",
     "watch": "npm run compile -- --watch",
     "lint": "eslint src --ext ts",
+    "format": "prettier --check '**/*.{ts,json,yml,mjs,code-workspace}'",
     "package": "vsce package --out out/",
     "watch-tests": "npm run compile-tests -- --watch",
-    "pretest": "npm run lint && npm run compile",
+    "pretest": "npm run lint && npm run format && npm run compile",
     "test": "vscode-test"
+  },
+  "prettier": {
+    "endOfLine": "auto",
+    "plugins": [
+      "prettier-plugin-organize-imports"
+    ]
   },
   "optionalDependencies": {
     "@eslint/js": "^9.39.1",
