@@ -1,20 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { readFile, writeFile } from "fs/promises";
 import type { IActionContext } from "@microsoft/vscode-azext-utils";
+import { readFile, writeFile } from "fs/promises";
 import { parse, stringify } from "ssh-config";
 import { ProgressLocation, commands, window } from "vscode";
-import { pickArcEnabledMachine } from "../utils/pickArcEnabledMachine";
-import { verifyRemoteSshExtension } from "../utils/verifyRemoteSshExtension";
-import { runAzSshConfigCommand } from "../utils/runAzSshConfigCommand";
-import { sshConfigPath } from "../constants";
 import { ArcEnabledMachineItem } from "../ArcEnabledMachineItem";
+import { sshConfigPath } from "../constants";
+import { pickArcEnabledMachine } from "../utils/pickArcEnabledMachine";
+import { runAzSshConfigCommand } from "../utils/runAzSshConfigCommand";
 import { verifyAzureCLI } from "../utils/verifyAzureCLI";
+import { verifyRemoteSshExtension } from "../utils/verifyRemoteSshExtension";
 
 export async function openInRemoteSsh(
     context: IActionContext & { canPickMany?: false },
-    node?: ArcEnabledMachineItem): Promise<void> {
+    node?: ArcEnabledMachineItem,
+): Promise<void> {
     // This was either called on a resource or from the command palette, in
     // which case we need to pick one.
     node ??= await pickArcEnabledMachine(context);
@@ -27,10 +28,14 @@ export async function openInRemoteSsh(
         },
         async (_progress, _token) => {
             await openInRemoteSshInternal(context, node);
-        });
+        },
+    );
 }
 
-async function openInRemoteSshInternal(context: IActionContext, node: ArcEnabledMachineItem): Promise<void> {
+async function openInRemoteSshInternal(
+    context: IActionContext,
+    node: ArcEnabledMachineItem,
+): Promise<void> {
     // Verify that the Azure CLI and Remote - SSH extension are installed.
     await verifyAzureCLI(context);
     await verifyRemoteSshExtension(context);
@@ -48,7 +53,9 @@ async function openInRemoteSshInternal(context: IActionContext, node: ArcEnabled
     }
 
     // Add the new config after computing it so we're not just concatenating strings.
-    const combinedConfig = sshConfig.append(sshArcConfig.compute({ Host: node.sshHostName }));
+    const combinedConfig = sshConfig.append(
+        sshArcConfig.compute({ Host: node.sshHostName }),
+    );
     await writeFile(sshConfigPath, stringify(combinedConfig));
 
     const host = node.sshHostName; // No idea why I have to extract this first.

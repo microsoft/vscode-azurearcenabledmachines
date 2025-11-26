@@ -3,52 +3,52 @@
 // Hover to view descriptions of existing attributes.
 // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Run Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
-				"--profile=debug",
-				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionDevelopmentPath=${workspaceFolder}/../vscode-azureresourcegroups",
-			],
-			"sourceMaps": true,
-			"outFiles": [
-				"${workspaceFolder}/dist/**/*.js",
-				"!**/node_modules/**",
-				"!**/.vscode-test/**"
-			],
-			"skipFiles": [
-				"<node_internals>/**",
-				"**/node_modules/**",
-				"**/.vscode-test/**"
-			],
-			"preLaunchTask": "${defaultBuildTask}"
-		},
-		{
-			"name": "Extension Tests",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
-				"--profile-temp",
-				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
-			],
-			"sourceMaps": true,
-			"outFiles": [
-				"${workspaceFolder}/out/**/*.js",
-				"${workspaceFolder}/dist/**/*.js",
-				"!**/node_modules/**",
-				"!**/.vscode-test/**"
-			],
-			"skipFiles": [
-				"<node_internals>/**",
-				"**/node_modules/**",
-				"**/.vscode-test/**"
-			],
-			"preLaunchTask": "tasks: watch-tests"
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--profile=debug",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionDevelopmentPath=${workspaceFolder}/../vscode-azureresourcegroups"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/dist/**/*.js",
+        "!**/node_modules/**",
+        "!**/.vscode-test/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**",
+        "**/.vscode-test/**"
+      ],
+      "preLaunchTask": "${defaultBuildTask}"
+    },
+    {
+      "name": "Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--profile-temp",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/suite/index"
+      ],
+      "sourceMaps": true,
+      "outFiles": [
+        "${workspaceFolder}/out/**/*.js",
+        "${workspaceFolder}/dist/**/*.js",
+        "!**/node_modules/**",
+        "!**/.vscode-test/**"
+      ],
+      "skipFiles": [
+        "<node_internals>/**",
+        "**/node_modules/**",
+        "**/.vscode-test/**"
+      ],
+      "preLaunchTask": "tasks: watch-tests"
+    }
+  ]
 }

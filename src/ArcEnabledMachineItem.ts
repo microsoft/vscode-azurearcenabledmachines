@@ -1,18 +1,28 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-
-import { join } from "path";
-import { tmpdir } from "os";
 import type { Machine } from "@azure/arm-hybridcompute";
-import type { AzureResource, AzureSubscription, ViewPropertiesModel } from "@microsoft/vscode-azureresources-api";
+import {
+    createPortalUri,
+    getResourceGroupFromId,
+} from "@microsoft/vscode-azext-azureutils";
+import {
+    type IActionContext,
+    createSubscriptionContext,
+    nonNullProp,
+} from "@microsoft/vscode-azext-utils";
+import type {
+    AzureResource,
+    AzureSubscription,
+    ViewPropertiesModel,
+} from "@microsoft/vscode-azureresources-api";
+import { tmpdir } from "os";
+import { join } from "path";
 import { TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
-import { createPortalUri, getResourceGroupFromId } from "@microsoft/vscode-azext-azureutils";
-import { type IActionContext, createSubscriptionContext, nonNullProp } from "@microsoft/vscode-azext-utils";
-import { getIconPath } from "./utils/treeUtils";
-import { createHybridComputeClient } from "./utils/azureClients";
 import type { ArcEnabledMachinesResourceModel } from "./ArcEnabledMachinesBranchDataProvider";
 import { ext } from "./extensionVariables";
+import { createHybridComputeClient } from "./utils/azureClients";
+import { getIconPath } from "./utils/treeUtils";
 
 export interface ArcEnabledMachineModel extends Machine {
     id: string;
@@ -34,15 +44,22 @@ export class ArcEnabledMachineItem implements ArcEnabledMachinesResourceModel {
     constructor(
         public readonly subscription: AzureSubscription,
         public readonly resource: AzureResource,
-        public readonly arcEnabledMachine: ArcEnabledMachineModel) {
-
+        public readonly arcEnabledMachine: ArcEnabledMachineModel,
+    ) {
         this.id = this.resource.id;
         this.portalUrl = createPortalUri(subscription, this.id);
 
         // While it's possible this is not unique...it is what the Az CLI SSH extension uses.
         this.sshHostName = `${arcEnabledMachine.resourceGroup}-${arcEnabledMachine.name}`;
-        this.sshConfigFile = join(tmpdir(), `vscode-${ext.prefix}-${this.sshHostName}.config`);
-        this.sshConfigFolder = join(tmpdir(), "az_ssh_config", this.sshHostName);
+        this.sshConfigFile = join(
+            tmpdir(),
+            `vscode-${ext.prefix}-${this.sshHostName}.config`,
+        );
+        this.sshConfigFolder = join(
+            tmpdir(),
+            "az_ssh_config",
+            this.sshHostName,
+        );
     }
 
     getTreeItem(): TreeItem {
@@ -59,21 +76,25 @@ export class ArcEnabledMachineItem implements ArcEnabledMachinesResourceModel {
         context: IActionContext,
         subscription: AzureSubscription,
         resourceGroup: string,
-        name: string): Promise<ArcEnabledMachineModel> {
-
+        name: string,
+    ): Promise<ArcEnabledMachineModel> {
         const subContext = createSubscriptionContext(subscription);
         const client = await createHybridComputeClient([context, subContext]);
-        const machine = await client.machines.get(resourceGroup, name, { expand: "instanceView" });
+        const machine = await client.machines.get(resourceGroup, name, {
+            expand: "instanceView",
+        });
         return ArcEnabledMachineItem.CreateArcEnabledMachineModel(machine);
     }
 
-    private static CreateArcEnabledMachineModel(machine: Machine): ArcEnabledMachineModel {
+    private static CreateArcEnabledMachineModel(
+        machine: Machine,
+    ): ArcEnabledMachineModel {
         const id = nonNullProp(machine, "id");
         return {
             id,
             name: nonNullProp(machine, "name"),
             resourceGroup: getResourceGroupFromId(id),
-            ...machine
+            ...machine,
         };
     }
 }
