@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ExtensionContext } from "vscode";
+import type { ExtensionContext } from "vscode";
 import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
-import { IActionContext, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
+import { type IActionContext, callWithTelemetryAndErrorHandling, createAzExtOutputChannel, registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
 import { AzExtResourceType, getAzureResourcesExtensionApi } from "@microsoft/vscode-azureresources-api";
 import { ext } from "./extensionVariables";
 import { ArcEnabledMachinesBranchDataProvider } from "./ArcEnabledMachinesBranchDataProvider";
@@ -26,7 +26,6 @@ export async function activate(context: ExtensionContext): Promise<void> {
             ext.rgApiV2 = await getAzureResourcesExtensionApi(context, "2.0.0");
             ext.branchDataProvider = new ArcEnabledMachinesBranchDataProvider();
             ext.rgApiV2.resources.registerAzureResourceBranchDataProvider(
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
                 AzExtResourceType.ArcEnabledMachines,
                 ext.branchDataProvider);
         });

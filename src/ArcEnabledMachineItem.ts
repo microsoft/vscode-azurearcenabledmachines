@@ -4,14 +4,14 @@
 
 import { join } from "path";
 import { tmpdir } from "os";
-import { Machine } from "@azure/arm-hybridcompute";
-import { AzureResource, AzureSubscription, ViewPropertiesModel } from "@microsoft/vscode-azureresources-api";
+import type { Machine } from "@azure/arm-hybridcompute";
+import type { AzureResource, AzureSubscription, ViewPropertiesModel } from "@microsoft/vscode-azureresources-api";
 import { TreeItem, TreeItemCollapsibleState, Uri } from "vscode";
 import { createPortalUri, getResourceGroupFromId } from "@microsoft/vscode-azext-azureutils";
-import { IActionContext, createSubscriptionContext, nonNullProp } from "@microsoft/vscode-azext-utils";
+import { type IActionContext, createSubscriptionContext, nonNullProp } from "@microsoft/vscode-azext-utils";
 import { getIconPath } from "./utils/treeUtils";
 import { createHybridComputeClient } from "./utils/azureClients";
-import { ArcEnabledMachinesResourceModel } from "./ArcEnabledMachinesBranchDataProvider";
+import type { ArcEnabledMachinesResourceModel } from "./ArcEnabledMachinesBranchDataProvider";
 import { ext } from "./extensionVariables";
 
 export interface ArcEnabledMachineModel extends Machine {

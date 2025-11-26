@@ -1,8 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ExecException } from "child_process";
-import { IActionContext } from "@microsoft/vscode-azext-utils";
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import type { ExecException } from "child_process";
+import type { IActionContext } from "@microsoft/vscode-azext-utils";
 import { ext } from "../extensionVariables";
 import { getAzureCLI, loginToAzureCLI } from "../constants";
 import { execAsync } from "../constants";

@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { ExtensionContext } from "vscode";
-import { IAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
-import { IAzExtOutputChannel, } from "@microsoft/vscode-azext-utils";
-import { AzureResourcesExtensionApi } from "@microsoft/vscode-azureresources-api";
+import type { ExtensionContext } from "vscode";
+import type { IAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
+import type { IAzExtOutputChannel, } from "@microsoft/vscode-azext-utils";
+import type { AzureResourcesExtensionApi } from "@microsoft/vscode-azureresources-api";
 import { ArcEnabledMachinesBranchDataProvider } from "./ArcEnabledMachinesBranchDataProvider";
 
 // This is essentially a singleton class with the extension's `activate` function as the constructor.

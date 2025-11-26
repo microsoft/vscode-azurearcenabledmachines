@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IActionContext, QuickPickAzureResourceStep, QuickPickAzureSubscriptionStep, QuickPickGroupStep, runQuickPickWizard } from "@microsoft/vscode-azext-utils";
+import { type IActionContext, QuickPickAzureResourceStep, QuickPickAzureSubscriptionStep, QuickPickGroupStep, runQuickPickWizard } from "@microsoft/vscode-azext-utils";
 import { AzExtResourceType } from "@microsoft/vscode-azureresources-api";
 import { ext } from "../extensionVariables";
 import { ArcEnabledMachineItem } from "../ArcEnabledMachineItem";

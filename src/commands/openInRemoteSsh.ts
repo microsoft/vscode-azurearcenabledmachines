@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { readFile, writeFile } from "fs/promises";
-import { IActionContext } from "@microsoft/vscode-azext-utils";
+import type { IActionContext } from "@microsoft/vscode-azext-utils";
 import { parse, stringify } from "ssh-config";
 import { ProgressLocation, commands, window } from "vscode";
 import { pickArcEnabledMachine } from "../utils/pickArcEnabledMachine";
