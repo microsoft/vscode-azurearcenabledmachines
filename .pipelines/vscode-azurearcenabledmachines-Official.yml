@@ -12,22 +12,12 @@ trigger:
 - main
 
 schedules:
-- cron: '16 17 * * 4'
+- cron: "16 17 * * 4"
   displayName: Weekly CodeQL
   branches:
     include:
     - main
   always: true
-
-parameters:
-- name: debug
-  displayName: Enable debug output
-  type: boolean
-  default: false
-
-variables:
-  system.debug: ${{ parameters.debug }}
-  WindowsContainerImage: onebranch.azurecr.io/windows/ltsc2022/vse2022:latest
 
 resources:
   repositories:
@@ -36,9 +26,29 @@ resources:
       name: OneBranch.Pipelines/GovernedTemplates
       ref: refs/heads/main
 
+parameters:
+  - name: debug
+    displayName: Enable debug output
+    type: boolean
+    default: false
+  - name: OfficialBuild
+    displayName: Use Official OneBranch template
+    type: boolean
+    default: true
+  - name: Release
+    displayName: Generate a release
+    type: boolean
+    default: false
+
+variables:
+  system.debug: ${{ parameters.debug }}
+  BuildConfiguration: Release
+  WindowsContainerImage: onebranch.azurecr.io/windows/ltsc2022/vse2022:latest
+  OneBranchTemplate: ${{ iif(parameters.OfficialBuild, 'v2/OneBranch.Official.CrossPlat.yml@templates', 'v2/OneBranch.NonOfficial.CrossPlat.yml@templates') }}
+
 extends:
   # https://aka.ms/obpipelines/templates
-  template: v2/OneBranch.Official.CrossPlat.yml@templates
+  template: ${{ variables.OneBranchTemplate }}
   parameters:
     globalSdl: # https://aka.ms/obpipelines/sdl
       asyncSdl:
@@ -48,7 +58,8 @@ extends:
       EnableCDPxPAT: false
       WindowsHostVersion:
         Version: 2022
-        Network: KS3
+    release:
+      category: NonAzure
     stages:
     - stage: build
       jobs:
@@ -68,53 +79,50 @@ extends:
             inputs:
               system: Custom
               customVersion: $(package.version)
-          - pwsh: npm ci --verbose --omit=optional
+          - pwsh: npm ci --verbose
             displayName: Install NPM packages
           - pwsh: npm run compile -- --minify
             displayName: Build minified extension
-          - pwsh: New-Item -ItemType Directory -Force out && npm run package -- --out out/
-            displayName: Create package
-      - job: test
-        displayName: Build and run tests
-        pool:
-          type: windows
-          isCustom: true
-          name: Azure Pipelines
-          vmImage: macOS-latest # Tests only reliably work on macOS
-        variables:
-          ob_outputDirectory: $(Build.SourcesDirectory)/out
-          skipComponentGovernanceDetection: true
-        steps:
-          - task: UseNode@1
-            displayName: Use Node 22.x
-            inputs:
-              version: 22.x
-          - pwsh: npm ci
-            displayName: Install NPM packages
           - pwsh: npm run test
-            displayName: Run tests
+            displayName: Run linter and unit tests
+          - pwsh: New-Item -ItemType Directory -Force out && npm run package
+            displayName: Create package
+          - pwsh: |
+              npx vsce generate-manifest --packagePath out/vscode-azurearcenabledmachines-$(package.version).vsix
+              cp out/vscode-azurearcenabledmachines-$(package.version).manifest out/vscode-azurearcenabledmachines-$(package.version).signature.p7s
+            displayName: Generate VSIX manifest
+          - task: onebranch.pipeline.signing@1
+            displayName: Sign VSIX manifest
+            inputs:
+              command: sign
+              cp_code: "CP-401405-VSCodePublisherSign"
+              search_root: $(Build.SourcesDirectory)/out
+              files_to_sign: "*.signature.p7s"
     - stage: release
       dependsOn: build
-      condition: eq(variables['Build.Reason'], 'Manual')
+      condition: and(succeeded(), ${{ eq(parameters.Release, true) }})
       variables:
+        ob_release_environment: ${{ iif(parameters.OfficialBuild, 'Production', 'Test') }}
         version: $[ stageDependencies.build.main.outputs['package.version'] ]
-        drop: $(Pipeline.Workspace)/drop_build_main
       jobs:
       - job: github
         displayName: Publish draft to GitHub
         pool:
-          type: windows
-        variables:
-          ob_outputDirectory: $(Build.SourcesDirectory)/out
+          type: release
+        templateContext:
+          inputs:
+            - input: pipelineArtifact
+              artifactName: drop_build_main
         steps:
-        - download: current
-          displayName: Download artifacts
         - task: GitHubRelease@1
           displayName: Create GitHub release
           inputs:
             gitHubConnection: GitHub
             repositoryName: microsoft/vscode-azurearcenabledmachines
-            assets: $(drop)/vscode-azurearcenabledmachines-$(version).vsix
+            assets: |
+              $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).vsix
+              $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).manifest
+              $(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(version).signature.p7s
             tagSource: userSpecifiedTag
             tag: v$(version)
             target: main
@@ -122,46 +130,27 @@ extends:
             addChangeLog: false
             releaseNotesSource: inline
             releaseNotesInline: "<!-- TODO: Generate release notes on GitHub! -->"
-      - job: validation
-        displayName: Manual validation
-        pool:
-          type: agentless
-        timeoutInMinutes: 1440
-        steps:
-        - task: ManualValidation@0
-          displayName: Wait 24 hours for validation
-          inputs:
-            notifyUsers: $(Build.RequestedForEmail)
-            instructions: Please validate the release
-            timeoutInMinutes: 1440
       - job: vscode
-        dependsOn: validation
         displayName: Publish to VS Code Marketplace
         pool:
-          type: windows
-        variables:
-          - group: VSCodeMarketplace
-          - name: ob_outputDirectory
-            value: $(Build.SourcesDirectory)/out
+          type: release
+        templateContext:
+          inputs:
+            - input: pipelineArtifact
+              artifactName: drop_build_main
+          workflow: vsce
+          vsce:
+            serviceConnection: vscode-marketplace
+            vsixPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).vsix"
+            signaturePath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).signature.p7s"
+            manifestPath: "$(Pipeline.Workspace)/vscode-azurearcenabledmachines-$(vsixVersion).manifest"
+            preRelease: $(prerelease)
+            useCustomVSCE: true
+            feed:
+              organization: mscodehub
+              project: PowerShellCore
+              feedName: PowerShellCore_PublicPackages
         steps:
-        - download: current
-          displayName: Download artifacts
-        - task: UseNode@1
-          displayName: Use Node 20.x
-          inputs:
-            version: 20.x
-        - pwsh: npm ci --verbose --omit=optional
-          displayName: Install NPM packages (for vsce)
-        - task: AzureCLI@2
-          displayName: Run vsce publish
-          inputs:
-            azureSubscription: vscode-marketplace
-            scriptType: pscore
-            scriptLocation: inlineScript
-            inlineScript: |
-              $publishArgs = @(
-                '--azure-credential'
-                '--packagePath'
-                '$(drop)/vscode-azurearcenabledmachines-$(version).vsix'
-              )
-              npm run publish -- @publishArgs
+        - pwsh: |
+            Write-Host Publishing: $(vsixVersion), pre-release: $(prerelease)
+          displayName: No-op step to satisfy pipeline requirements

@@ -65,8 +65,7 @@
     "compile": "esbuild ./src/extension.ts --outdir=dist --sourcemap --bundle --external:vscode --platform=node",
     "watch": "npm run compile -- --watch",
     "lint": "eslint src --ext ts",
-    "package": "vsce package",
-    "publish": "vsce publish",
+    "package": "vsce package --out out/",
     "watch-tests": "npm run compile-tests -- --watch",
     "pretest": "npm run lint && npm run compile",
     "test": "vscode-test"
