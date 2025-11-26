@@ -85,7 +85,7 @@ extends:
                 displayName: Build minified extension
               - pwsh: npm run test
                 displayName: Run linter and unit tests
-              - pwsh: New-Item -ItemType Directory -Force out && npm run package
+              - pwsh: New-Item -ItemType Directory -Force out && npm run package -- --out out/
                 displayName: Create package
               - pwsh: |
                   npx vsce generate-manifest --packagePath out/vscode-azurearcenabledmachines-$(package.version).vsix
