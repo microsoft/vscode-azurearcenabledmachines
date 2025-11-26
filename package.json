@@ -94,9 +94,9 @@
   },
   "dependencies": {
     "@azure/arm-hybridcompute": "^4.0.0",
-    "@microsoft/vscode-azext-azureutils": "^3.5.2",
-    "@microsoft/vscode-azext-utils": "^2.6.8",
-    "@microsoft/vscode-azureresources-api": "^2.6.3",
+    "@microsoft/vscode-azext-azureutils": "^4.0.0",
+    "@microsoft/vscode-azext-utils": "^4.0.2",
+    "@microsoft/vscode-azureresources-api": "^3.0.0",
     "fs-extra": "^11.3.2",
     "ssh-config": "^5.0.4"
   }
