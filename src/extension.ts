@@ -32,6 +32,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
 
             registerCommands();
 
+            // eslint-disable-next-line @typescript-eslint/no-deprecated
             ext.rgApiV2 = await getAzureResourcesExtensionApi(context, "2.0.0");
             ext.branchDataProvider = new ArcEnabledMachinesBranchDataProvider();
             ext.rgApiV2.resources.registerAzureResourceBranchDataProvider(
